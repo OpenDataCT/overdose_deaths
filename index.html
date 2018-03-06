@@ -1,39 +1,80 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Calender Map - 10 Steps Tutorial</title>
-
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-	
-    <link href="bootstrap.css" rel="stylesheet" /> 
-    <script type="text/javascript" src="bootstrap.min.js"></script> 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-    <style>
-	.calender-map {
-      font: 10px sans-serif;
-      shape-rendering: crispEdges;
-    }
-    .day {
-      stroke: #666;
-    }
-    .month {
-      fill: none;
-      stroke: #000;
-      stroke-width: 2px;
-    }
-    .RdYlGn .q0-11{fill:rgb(165,0,38)}
-    .RdYlGn .q1-{fill:rgb(215,48,39)}
-    .RdYlGn .q2-11{fill:rgb(244,109,67)}
-    .RdYlGn .q3-11{fill:rgb(253,174,97)}
-    .RdYlGn .q4-11{fill:rgb(254,224,139)}
-    .RdYlGn .q5-11{fill:rgb(255,255,191)}
-    .RdYlGn .q6-11{fill:rgb(217,239,139)}
-    .RdYlGn .q7-11{fill:rgb(166,217,106)}
-    .RdYlGn .q8-11{fill:rgb(102,189,99)}
-    .RdYlGn .q9-11{fill:rgb(26,152,80)}
-    .RdYlGn .q10-11{fill:rgb(0,104,55)}
-    </style>
+  <meta charset="utf-8">
+  <title>d3 | reusable heatmap calendar</title> 
+  <meta name="author" content="Sundar Singh | eesur.com">
+  
+  <link rel="stylesheet" href="main.css">
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js" charset="utf-8"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
 </head>
 <body>
-<div class="calender-map"></div>
-<script type="text/javascript" src="calendermap.js"></script>
-</body></html>
+
+  <article>
+    <header>
+      <span id="info">info</span> 
+    </header>
+    <section id="heatmap"></section>
+  </article> 
+
+  <script> d3.eesur = {}; //namespace  </script>
+  <script src="d3_code_heatmap_cal.js"></script>
+  <script>
+  // *****************************************
+  // render chart
+  // *****************************************
+  (function() {
+      'use strict';
+      
+      var nestedData;
+      var parseDate = d3.time.format('%Y-%m-%d').parse;
+
+      // create chart
+      var heatChart = d3.eesur.heatmap()
+          .colourRangeStart('#FDBB30')
+          .colourRangeEnd('#EE3124')
+          .height(800)
+          .startYear('2011')
+          .endYear('2016')
+          .on('_hover', function (d, i) {
+              var f = d3.time.format('%B %d, %Y');
+              d3.select('#info')
+                  .text(function () {
+                      return 'date: ' + f(d) + ' | value: ' + nestedData[d];
+                  });
+          });
+
+      // apply after nesting data
+      d3.json('heatmap_data.json', function(error, data) {
+
+          if (error) return console.warn(error);
+        
+          nestedData = d3.nest()
+              .key(function (d) { return parseDate(d.date.split(' ')[0]); })
+              .rollup(function (n) { 
+                  return d3.sum(n, function (d) { 
+                      return d.amount; // key
+                  }); 
+              })
+              .map(data);
+
+          // console.log(nestedData);
+
+          // render chart
+          d3.select('#heatmap')
+              .datum(nestedData)
+              .call(heatChart);
+
+      });
+
+  }());
+
+  d3.select(self.frameElement).style('height', '900px');
+
+  </script>
+
+</body>
+
+</html>
