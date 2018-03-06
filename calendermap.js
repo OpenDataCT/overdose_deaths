@@ -71,14 +71,14 @@ svg.selectAll(".month")
 d3.csv("data.csv", function(error, csv) {
 
   csv.forEach(function(d) {
-    d.Comparison_Type = parseInt(d.Comparison_Type);
+    d.value = parseInt(d.value);
   });
 
- var Comparison_Type_Max = d3.max(csv, function(d) { return d.Comparison_Type; });
+ var value_Max = d3.max(csv, function(d) { return d.value; });
  
   var data = d3.nest()
     .key(function(d) { return d.Date; })
-    .rollup(function(d) { return  Math.sqrt(d[0].Comparison_Type / Comparison_Type_Max); })
+    .rollup(function(d) { return  Math.sqrt(d[0].value / value_Max); })
     .map(csv);
 	
   rect.filter(function(d) { return d in data; })
