@@ -9,7 +9,7 @@
 
         // input vars for getter setters
         var startYear = 2012,
-            endYear = 2017,
+            endYear = 2018,
             colourRangeStart = '#fae9e9',
             colourRangeEnd = '#d62728',
             width = 950,
